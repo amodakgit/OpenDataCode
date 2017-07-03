@@ -1,0 +1,2 @@
+ALL_PACKAGES += PhysicsTools/PatExamples
+subdirs_src_PhysicsTools_PatExamples := src_PhysicsTools_PatExamples_bin src_PhysicsTools_PatExamples_plugins src_PhysicsTools_PatExamples_python src_PhysicsTools_PatExamples_src src_PhysicsTools_PatExamples_test

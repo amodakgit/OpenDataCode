@@ -1,0 +1,2 @@
+ALL_PACKAGES += OutreachExercise2011/DecaysToLeptons
+subdirs_src_OutreachExercise2011_DecaysToLeptons := src_OutreachExercise2011_DecaysToLeptons_python

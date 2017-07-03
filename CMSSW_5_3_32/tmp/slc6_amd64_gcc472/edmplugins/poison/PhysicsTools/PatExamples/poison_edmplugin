@@ -1,0 +1,14 @@
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so PatJPsiProducer CMS%EDM%Framework%Module
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so PatJPsiProducer CMS%EDM%Framework%ParameterSet%Description
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so PatMuonEDAnalyzer CMS%EDM%Framework%Module
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so PatMuonEDAnalyzer CMS%EDM%Framework%ParameterSet%Description
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so PatTriggerAnalyzer CMS%EDM%Framework%Module
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so PatTriggerAnalyzer CMS%EDM%Framework%ParameterSet%Description
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so PatTriggerAnalyzerPrescale CMS%EDM%Framework%Module
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so PatTriggerAnalyzerPrescale CMS%EDM%Framework%ParameterSet%Description
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so PatTriggerTagAndProbe CMS%EDM%Framework%Module
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so PatTriggerTagAndProbe CMS%EDM%Framework%ParameterSet%Description
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so WrappedEDAnalysisTasksAnalyzerBTag CMS%EDM%Framework%Module
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so WrappedEDAnalysisTasksAnalyzerBTag CMS%EDM%Framework%ParameterSet%Description
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so WrappedEDAnalysisTasksAnalyzerJEC CMS%EDM%Framework%Module
+plugin-poisoned-PhysicsToolsPatExamples_plugins.so WrappedEDAnalysisTasksAnalyzerJEC CMS%EDM%Framework%ParameterSet%Description

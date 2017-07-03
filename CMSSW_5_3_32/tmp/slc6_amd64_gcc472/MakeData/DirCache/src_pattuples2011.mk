@@ -1,0 +1,2 @@
+ALL_SUBSYSTEMS+=pattuples2011
+subdirs_src_pattuples2011 = src_pattuples2011_START53_LV6A1 src_pattuples2011_FT_53_LV5_AN1

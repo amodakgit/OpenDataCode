@@ -1,0 +1,2 @@
+ALL_SUBSYSTEMS+=HEPTutorial
+subdirs_src_HEPTutorial = src_HEPTutorial_files

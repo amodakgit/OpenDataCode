@@ -1,0 +1,4 @@
+tmp/slc6_amd64_gcc472/src/PhysicsTools/PatExamples/bin/PatMuonFWLiteAnalyzer/PatMuonFWLiteAnalyzer.o: \
+ src/PhysicsTools/PatExamples/bin/PatMuonFWLiteAnalyzer.cc \
+ src/PhysicsTools/PatExamples/interface/PatMuonAnalyzer.h \
+

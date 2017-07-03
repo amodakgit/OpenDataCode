@@ -1,0 +1,12 @@
+tmp/slc6_amd64_gcc472/src/PhysicsTools/PatExamples/src/PhysicsToolsPatExamples/AnalysisTasksAnalyzerBTag.o: \
+ src/PhysicsTools/PatExamples/src/AnalysisTasksAnalyzerBTag.cc \
+ src/PhysicsTools/PatExamples/interface/AnalysisTasksAnalyzerBTag.h \
+
+tmp/slc6_amd64_gcc472/src/PhysicsTools/PatExamples/src/PhysicsToolsPatExamples/AnalysisTasksAnalyzerJEC.o: \
+ src/PhysicsTools/PatExamples/src/AnalysisTasksAnalyzerJEC.cc \
+ src/PhysicsTools/PatExamples/interface/AnalysisTasksAnalyzerJEC.h \
+
+tmp/slc6_amd64_gcc472/src/PhysicsTools/PatExamples/src/PhysicsToolsPatExamples/PatMuonAnalyzer.o: \
+ src/PhysicsTools/PatExamples/src/PatMuonAnalyzer.cc \
+ src/PhysicsTools/PatExamples/interface/PatMuonAnalyzer.h \
+

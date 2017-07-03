@@ -1,0 +1,12 @@
+pat::Tau: the ID hpsPFTauDiscriminationByDecayModeFinding can't be found in this pat::Tau.
+The available IDs are: 'againstElectronDeadECAL' 'againstElectronLoose' 'againstElectronLooseMVA3' 
+'againstElectronMVA3category' 'againstElectronMVA3raw' 'againstElectronMedium' 'againstElectronMediumMVA3' 
+'againstElectronTight' 'againstElectronTightMVA3' 'againstElectronVTightMVA3' 'againstMuonLoose' 
+'againstMuonLoose2' 'againstMuonMedium' 'againstMuonMedium2' 'againstMuonTight' 'againstMuonTight2' 
+'byCombinedIsolationDeltaBetaCorrRaw' 'byCombinedIsolationDeltaBetaCorrRaw3Hits' 'byIsolationMVA2raw' 
+'byIsolationMVAraw' 'byLooseCombinedIsolationDeltaBetaCorr' 'byLooseCombinedIsolationDeltaBetaCorr3Hits' 
+'byLooseIsolationMVA' 'byLooseIsolationMVA2' 'byMediumCombinedIsolationDeltaBetaCorr' 
+'byMediumCombinedIsolationDeltaBetaCorr3Hits' 'byMediumIsolationMVA' 'byMediumIsolationMVA2' 
+'byTightCombinedIsolationDeltaBetaCorr' 'byTightCombinedIsolationDeltaBetaCorr3Hits' 'byTightIsolationMVA' 
+'byTightIsolationMVA2' 'byVLooseCombinedIsolationDeltaBetaCorr' 'decayModeFinding' .
+

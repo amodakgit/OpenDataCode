@@ -1,0 +1,22 @@
+tmp/slc6_amd64_gcc472/src/PhysicsTools/PatExamples/plugins/PhysicsToolsPatExamples_plugins/PatJPsiProducer.o: \
+ src/PhysicsTools/PatExamples/plugins/PatJPsiProducer.cc \
+
+tmp/slc6_amd64_gcc472/src/PhysicsTools/PatExamples/plugins/PhysicsToolsPatExamples_plugins/PatMuonEDAnalyzer.o: \
+ src/PhysicsTools/PatExamples/plugins/PatMuonEDAnalyzer.cc \
+ src/PhysicsTools/PatExamples/interface/PatMuonAnalyzer.h \
+
+tmp/slc6_amd64_gcc472/src/PhysicsTools/PatExamples/plugins/PhysicsToolsPatExamples_plugins/PatTriggerAnalyzer.o: \
+ src/PhysicsTools/PatExamples/plugins/PatTriggerAnalyzer.cc \
+
+tmp/slc6_amd64_gcc472/src/PhysicsTools/PatExamples/plugins/PhysicsToolsPatExamples_plugins/PatTriggerAnalyzerPrescale.o: \
+ src/PhysicsTools/PatExamples/plugins/PatTriggerAnalyzerPrescale.cc \
+
+tmp/slc6_amd64_gcc472/src/PhysicsTools/PatExamples/plugins/PhysicsToolsPatExamples_plugins/PatTriggerTagAndProbe.o: \
+ src/PhysicsTools/PatExamples/plugins/PatTriggerTagAndProbe.cc \
+ src/PhysicsTools/PatExamples/plugins/PatTriggerTagAndProbe.h \
+
+tmp/slc6_amd64_gcc472/src/PhysicsTools/PatExamples/plugins/PhysicsToolsPatExamples_plugins/WrappedEDAnalysisTasksAnalyzer.o: \
+ src/PhysicsTools/PatExamples/plugins/WrappedEDAnalysisTasksAnalyzer.cc \
+ src/PhysicsTools/PatExamples/interface/AnalysisTasksAnalyzerBTag.h \
+ src/PhysicsTools/PatExamples/interface/AnalysisTasksAnalyzerJEC.h \
+

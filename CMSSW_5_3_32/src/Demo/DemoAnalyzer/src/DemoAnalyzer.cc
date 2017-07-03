@@ -1,0 +1,545 @@
+// -*- C++ -*-
+//
+// Package:    DemoAnalyzer
+// Class:      DemoAnalyzer
+// 
+/**\class DemoAnalyzer DemoAnalyzer.cc Demo/DemoAnalyzer/src/DemoAnalyzer.cc
+
+ Description: [one line class summary]
+
+ Implementation:
+     [Notes on implementation]
+*/
+//
+// Original Author:  Atanu Modak,,,
+//         Created:  Mon Feb 20 13:57:57 CET 2017
+// $Id$
+//
+//
+
+
+// system include files
+#include <memory>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "TH1.h"
+#include "TLorentzVector.h"
+
+//
+// class declaration
+//
+
+class DemoAnalyzer : public edm::EDAnalyzer {
+   public:
+      explicit DemoAnalyzer(const edm::ParameterSet&);
+      ~DemoAnalyzer();
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+
+   private:
+      virtual void beginJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
+
+      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+      virtual void endRun(edm::Run const&, edm::EventSetup const&);
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+
+      // ----------member data ---------------------------
+      edm::InputTag MuonSrc_;
+      edm::InputTag ElectronSrc_;
+      edm::InputTag JetSrc_;
+      edm::InputTag TauSrc_;
+      edm::InputTag MetSrc_;
+      edm::InputTag VertexSrc_;
+      TFile * outputFile_;
+      TH1F * h_pt, * h_eta, * h_phi, *h_pt_nume, *h_pt_deno, *h_MT, *h_eta_nume, *h_eta_deno, *Z_Mass, *JPsi_Mass;
+      TH1F *muon_ID_deno_pt, *muon_ID_nume_pt, *muon_ID_deno_eta, *muon_ID_nume_eta;
+      TH1F *muon_ISO_deno_pt, *muon_ISO_nume_pt, *muon_ISO_deno_eta, *muon_ISO_nume_eta;
+      TH1F *jet_pt_deno, *jet_pt_nume, *jet_pt_ttjets_deno, *jet_pt_ttjets_nume;
+      TH1D * EvtCounter;
+      TH1F *muon_ID_deno_pt_0_10, *muon_ID_deno_pt_10_20, *muon_ID_deno_pt_20_30, *muon_ID_deno_pt_30_40, *muon_ID_deno_pt_40_50,
+           *muon_ID_deno_pt_50_60, *muon_ID_deno_pt_60_70, *muon_ID_deno_pt_70_80, *muon_ID_deno_pt_80_90, *muon_ID_deno_pt_90_All;
+      TH1F *muon_ID_nume_pt_0_10, *muon_ID_nume_pt_10_20, *muon_ID_nume_pt_20_30, *muon_ID_nume_pt_30_40, *muon_ID_nume_pt_40_50,
+           *muon_ID_nume_pt_50_60, *muon_ID_nume_pt_60_70, *muon_ID_nume_pt_70_80, *muon_ID_nume_pt_80_90, *muon_ID_nume_pt_90_All;
+
+      TH1F *muon_ID_JPsi_deno_pt_0_5, *muon_ID_JPsi_deno_pt_5_10, *muon_ID_JPsi_deno_pt_10_15, *muon_ID_JPsi_deno_pt_15_20, 
+           *muon_ID_JPsi_deno_pt_20_All;
+      TH1F *muon_ID_JPsi_nume_pt_0_5, *muon_ID_JPsi_nume_pt_5_10, *muon_ID_JPsi_nume_pt_10_15, *muon_ID_JPsi_nume_pt_15_20, 
+           *muon_ID_JPsi_nume_pt_20_All;
+};
+
+//
+// constants, enums and typedefs
+//
+
+//
+// static data member definitions
+//
+
+//
+// constructors and destructor
+//
+DemoAnalyzer::DemoAnalyzer(const edm::ParameterSet& iConfig) :
+   MuonSrc_( iConfig.getParameter<edm::InputTag>( "MuonSrc" ) ),
+   ElectronSrc_( iConfig.getParameter<edm::InputTag>( "ElectronSrc" ) ),
+   JetSrc_( iConfig.getParameter<edm::InputTag>( "JetSrc" ) ),
+   TauSrc_(  iConfig.getParameter<edm::InputTag>( "TauSrc" ) ),
+   MetSrc_(  iConfig.getParameter<edm::InputTag>( "MetSrc" ) ),
+   VertexSrc_(  iConfig.getParameter<edm::InputTag>( "VertexSrc" ) )
+{
+   //now do what ever initialization is needed
+
+   edm::Service<TFileService> fs;
+
+   EvtCounter = fs->make<TH1D>( "evt", "#nevt", 1, 0.5, 1.5 );
+   h_pt       = fs->make<TH1F>( "pt", "p_{t}", 200, 0, 200 );
+   h_eta      = fs->make<TH1F>( "eta", "#eta", 50, -3, 3 );
+   h_phi      = fs->make<TH1F>( "phi", "#phi", 50, -5, 5 );
+   h_pt_nume  = fs->make<TH1F>( "pt_nume", "p_{t}", 200, 0, 200 );
+   h_pt_deno  = fs->make<TH1F>( "pt_deno", "p_{t}", 200, 0, 200 );
+   h_eta_nume  = fs->make<TH1F>( "eta_nume", "#eta", 50, -3, 3 );
+   h_eta_deno  = fs->make<TH1F>( "eta_deno", "#eta", 50, -3, 3 );
+   h_MT       = fs->make<TH1F>( "MT", "MT of Muon & MET", 200, 0, 200 );
+   Z_Mass       = fs->make<TH1F>( "ZM", "#ZMass", 200, 0, 200 );
+   JPsi_Mass       = fs->make<TH1F>( "JPsiM", "#JPsiMass", 100, 0, 10 );
+
+   jet_pt_nume  = fs->make<TH1F>( "jetpt_nume", "p_{t}", 200, 0, 200 );
+   jet_pt_deno  = fs->make<TH1F>( "jetpt_deno", "p_{t}", 200, 0, 200 );
+
+   jet_pt_ttjets_nume  = fs->make<TH1F>( "jetpt_tt_nume", "p_{t}", 200, 0, 200 );
+   jet_pt_ttjets_deno  = fs->make<TH1F>( "jetpt_tt_deno", "p_{t}", 200, 0, 200 );
+
+   muon_ID_deno_pt       = fs->make<TH1F>( "ID_Deno_Pt", "#PT", 200, 0, 200 );
+   muon_ID_nume_pt       = fs->make<TH1F>( "ID_Nume_Pt", "#PT", 200, 0, 200 );
+   muon_ID_deno_eta       = fs->make<TH1F>( "ID_Deno_eta", "#ETA", 50, -3, 3 );
+   muon_ID_nume_eta       = fs->make<TH1F>( "ID_Nume_eta", "#ETA", 50, -3, 3 );
+   muon_ISO_deno_pt       = fs->make<TH1F>( "ISO_Deno_Pt", "#PT", 200, 0, 200 );
+   muon_ISO_nume_pt       = fs->make<TH1F>( "ISO_Nume_Pt", "#PT", 200, 0, 200 );
+   muon_ISO_deno_eta       = fs->make<TH1F>( "ISO_Deno_eta", "#ETA", 50, -3, 3 );
+   muon_ISO_nume_eta       = fs->make<TH1F>( "ISO_Nume_eta", "#ETA", 50, -3, 3 );
+
+   muon_ID_deno_pt_0_10       = fs->make<TH1F>( "ID_Deno_Pt_0_10", "#PT", 200, 0, 200 );
+   muon_ID_deno_pt_10_20       = fs->make<TH1F>( "ID_Deno_Pt_10_20", "#PT", 200, 0, 200 );
+   muon_ID_deno_pt_20_30       = fs->make<TH1F>( "ID_Deno_Pt_20_30", "#PT", 200, 0, 200 );
+   muon_ID_deno_pt_30_40       = fs->make<TH1F>( "ID_Deno_Pt_30_40", "#PT", 200, 0, 200 );
+   muon_ID_deno_pt_40_50       = fs->make<TH1F>( "ID_Deno_Pt_40_50", "#PT", 200, 0, 200 );
+   muon_ID_deno_pt_50_60       = fs->make<TH1F>( "ID_Deno_Pt_50_60", "#PT", 200, 0, 200 );
+   muon_ID_deno_pt_60_70       = fs->make<TH1F>( "ID_Deno_Pt_60_70", "#PT", 200, 0, 200 );
+   muon_ID_deno_pt_70_80       = fs->make<TH1F>( "ID_Deno_Pt_70_80", "#PT", 200, 0, 200 );
+   muon_ID_deno_pt_80_90       = fs->make<TH1F>( "ID_Deno_Pt_80_90", "#PT", 200, 0, 200 );
+   muon_ID_deno_pt_90_All       = fs->make<TH1F>( "ID_Deno_Pt_90_All", "#PT", 200, 0, 200 );
+
+   muon_ID_nume_pt_0_10       = fs->make<TH1F>( "ID_Nume_Pt_0_10", "#PT", 200, 0, 200 );
+   muon_ID_nume_pt_10_20       = fs->make<TH1F>( "ID_Nume_Pt_10_20", "#PT", 200, 0, 200 );
+   muon_ID_nume_pt_20_30       = fs->make<TH1F>( "ID_Nume_Pt_20_30", "#PT", 200, 0, 200 );
+   muon_ID_nume_pt_30_40       = fs->make<TH1F>( "ID_Nume_Pt_30_40", "#PT", 200, 0, 200 );
+   muon_ID_nume_pt_40_50       = fs->make<TH1F>( "ID_Nume_Pt_40_50", "#PT", 200, 0, 200 );
+   muon_ID_nume_pt_50_60       = fs->make<TH1F>( "ID_Nume_Pt_50_60", "#PT", 200, 0, 200 );
+   muon_ID_nume_pt_60_70       = fs->make<TH1F>( "ID_Nume_Pt_60_70", "#PT", 200, 0, 200 );
+   muon_ID_nume_pt_70_80       = fs->make<TH1F>( "ID_Nume_Pt_70_80", "#PT", 200, 0, 200 );
+   muon_ID_nume_pt_80_90       = fs->make<TH1F>( "ID_Nume_Pt_80_90", "#PT", 200, 0, 200 );
+   muon_ID_nume_pt_90_All       = fs->make<TH1F>( "ID_Nume_Pt_90_All", "#PT", 200, 0, 200 );
+
+   muon_ID_JPsi_deno_pt_0_5       = fs->make<TH1F>( "ID_JPsi_Deno_Pt_0_5", "#PT", 100, 0, 10 );
+   muon_ID_JPsi_deno_pt_5_10       = fs->make<TH1F>( "ID_JPsi_Deno_Pt_5_10", "#PT", 100, 0, 10 );
+   muon_ID_JPsi_deno_pt_10_15       = fs->make<TH1F>( "ID_JPsi_Deno_Pt_10_15", "#PT", 100, 0, 10 );
+   muon_ID_JPsi_deno_pt_15_20       = fs->make<TH1F>( "ID_JPsi_Deno_Pt_15_20", "#PT", 100, 0, 10 );
+   muon_ID_JPsi_deno_pt_20_All       = fs->make<TH1F>( "ID_JPsi_Deno_Pt_20_All", "#PT", 100, 0, 10 );
+
+   muon_ID_JPsi_nume_pt_0_5       = fs->make<TH1F>( "ID_JPsi_Nume_Pt_0_5", "#PT", 100, 0, 10 );
+   muon_ID_JPsi_nume_pt_5_10       = fs->make<TH1F>( "ID_JPsi_Nume_Pt_5_10", "#PT", 100, 0, 10 );
+   muon_ID_JPsi_nume_pt_10_15       = fs->make<TH1F>( "ID_JPsi_Nume_Pt_10_15", "#PT", 100, 0, 10 );
+   muon_ID_JPsi_nume_pt_15_20       = fs->make<TH1F>( "ID_JPsi_Nume_Pt_15_20", "#PT", 100, 0, 10 );
+   muon_ID_JPsi_nume_pt_20_All       = fs->make<TH1F>( "ID_JPsi_Nume_Pt_20_All", "#PT", 100, 0, 10 );
+}
+
+
+DemoAnalyzer::~DemoAnalyzer()
+{
+ 
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
+
+}
+
+
+//
+// member functions
+//
+
+// ------------ method called for each event  ------------
+void
+DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+   EvtCounter->Fill(1);
+   using namespace edm;
+   //outputFile_->cd();
+
+   Handle<std::vector<pat::Muon>> muons;
+   iEvent.getByLabel( MuonSrc_, muons );
+
+   Handle<std::vector<pat::Electron>> electrons;
+   iEvent.getByLabel( ElectronSrc_, electrons );
+
+   Handle<std::vector<pat::Jet>> jets;
+   iEvent.getByLabel( JetSrc_, jets );
+
+   Handle<std::vector<pat::Tau>> taus;
+   iEvent.getByLabel( TauSrc_, taus );
+
+   Handle<std::vector<pat::MET>> mets;
+   iEvent.getByLabel( MetSrc_, mets );
+
+   Handle<std::vector<reco::Vertex>> vertices;
+   iEvent.getByLabel( VertexSrc_, vertices );
+   
+   bool primaryVertex = false;
+   for(std::vector<reco::Vertex>::const_iterator vtx=vertices->begin(); vtx!=vertices->end(); ++vtx){
+     double dxy = sqrt(pow(vtx->x(), 2) + pow(vtx->y(), 2));
+     if (vtx->isFake() || abs(vtx->z()) > 24.0 || abs(dxy) > 2.0 || vtx->ndof() <= 7.0) continue;
+     primaryVertex = true;
+   }
+   if (!primaryVertex) return;
+   const reco::Vertex &vit = vertices->front(); // Highest sumPt vertex
+
+   TLorentzVector M1, M2, M, T, J, Temp;
+   // loop muon collection, to pick up diMuon mass spectrum with 2 tight muons
+   for(std::vector<pat::Muon>::const_iterator mu1=muons->begin(); mu1!=muons->end(); ++mu1){
+      if (mu1->pt() <= 5.0 || mu1->eta() > 2.1) continue;
+      if (!(mu1->isGlobalMuon()) || !(mu1->isTightMuon(vit))) continue;
+      double reliso = (mu1->trackIso() + mu1->caloIso())/mu1->pt();
+      if (reliso > 0.2) continue;
+      M1.SetPtEtaPhiE(mu1->pt(), mu1->eta(), mu1->phi(), mu1->energy());
+      for(std::vector<pat::Muon>::const_iterator mu2=muons->begin(); mu2!=muons->end(); ++mu2){
+         if (mu1 == mu2) continue;
+         if (mu2->pt() <= 5.0 || mu2->eta() > 2.1) continue;
+         if ((mu1->charge() + mu2->charge()) != 0) continue;  
+         if (!(mu2->isGlobalMuon())) continue;
+         if (!(mu2->isGlobalMuon()) || !(mu2->isTightMuon(vit))) continue;
+         double reliso = (mu2->trackIso() + mu2->caloIso())/mu2->pt();
+         if (reliso > 0.2) continue;
+
+         M2.SetPtEtaPhiE(mu2->pt(), mu2->eta(), mu2->phi(), mu2->energy());
+         double z_mass = (M1+M2).M();
+         if (abs (z_mass - 91) < 30) Z_Mass->Fill(z_mass);
+         if (abs (z_mass - 3.1) < 3) JPsi_Mass->Fill(z_mass);
+      }
+   }
+
+   // loop muon collection, to pick up Z mass window for ID study, One tight Tag and Loose  Probe
+   for(std::vector<pat::Muon>::const_iterator mu1=muons->begin(); mu1!=muons->end(); ++mu1){
+      if (mu1->pt() <= 24.0 || mu1->eta() > 2.1) continue;
+      if (!(mu1->isGlobalMuon()) || !(mu1->isTightMuon(vit))) continue;
+      double reliso = (mu1->trackIso() + mu1->caloIso())/mu1->pt();
+      if (reliso > 0.2) continue;
+      M1.SetPtEtaPhiE(mu1->pt(), mu1->eta(), mu1->phi(), mu1->energy());
+      for(std::vector<pat::Muon>::const_iterator mu2=muons->begin(); mu2!=muons->end(); ++mu2){
+         if (mu1 == mu2) continue;
+         if (mu2->pt() <= 10.0 || mu2->eta() > 2.1) continue;
+         if (!(mu2->isGlobalMuon())) continue;
+         if ((mu1->charge() + mu2->charge()) != 0) continue;
+         M2.SetPtEtaPhiE(mu2->pt(), mu2->eta(), mu2->phi(), mu2->energy());
+         double z_mass = (M1+M2).M();
+         if (abs(z_mass - 91.0) < 20.0){
+           double reliso = (mu2->trackIso() + mu2->caloIso())/mu2->pt();
+           muon_ID_deno_pt->Fill(mu2->pt());          
+           if (mu2->isTightMuon(vit)){
+             muon_ID_nume_pt->Fill(mu2->pt());
+             muon_ISO_deno_pt->Fill(mu2->pt());
+             if (reliso < 0.1) muon_ISO_nume_pt->Fill(mu2->pt());
+           }
+           if (mu2->pt() > 20.0){
+             muon_ID_deno_eta->Fill(mu2->eta());          
+             if (mu2->isTightMuon(vit)){
+               muon_ID_nume_eta->Fill(mu2->eta());
+               muon_ISO_deno_eta->Fill(mu2->eta());
+               if (reliso < 0.1) muon_ISO_nume_eta->Fill(mu2->eta());
+             }
+           }
+         }//end of Z window
+
+         //Pt Binned Histograms to be fitted for signal and background extraction, for ID efficiency, using ZMass
+         if (abs(z_mass - 91.0) < 30.0){
+           if (mu2->pt() < 10){
+             muon_ID_deno_pt_0_10->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_nume_pt_0_10->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 10 && mu2->pt() < 20){
+             muon_ID_deno_pt_10_20->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_nume_pt_10_20->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 20 && mu2->pt() < 30){
+             muon_ID_deno_pt_20_30->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_nume_pt_20_30->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 30 && mu2->pt() < 40){
+             muon_ID_deno_pt_30_40->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_nume_pt_30_40->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 40 && mu2->pt() < 50){
+             muon_ID_deno_pt_40_50->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_nume_pt_40_50->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 50 && mu2->pt() < 60){
+             muon_ID_deno_pt_50_60->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_nume_pt_50_60->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 60 && mu2->pt() < 70){
+             muon_ID_deno_pt_60_70->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_nume_pt_60_70->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 70 && mu2->pt() < 80){
+             muon_ID_deno_pt_70_80->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_nume_pt_70_80->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 80 && mu2->pt() < 90){
+             muon_ID_deno_pt_80_90->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_nume_pt_80_90->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 90){
+             muon_ID_deno_pt_90_All->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_nume_pt_90_All->Fill(z_mass);
+           }
+         } 
+
+         //Pt Binned Histograms to be fitted for signal and background extraction, for ID efficiency, using J/Psi Mass
+         if (abs(z_mass - 3.1) < 3.0){
+           if (mu2->pt() < 5){
+             muon_ID_JPsi_deno_pt_0_5->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_JPsi_nume_pt_0_5->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 5 && mu2->pt() < 10){
+             muon_ID_JPsi_deno_pt_5_10->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_JPsi_nume_pt_5_10->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 10 && mu2->pt() < 15){
+             muon_ID_JPsi_deno_pt_10_15->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_JPsi_nume_pt_10_15->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 15 && mu2->pt() < 20){
+             muon_ID_JPsi_deno_pt_15_20->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_JPsi_nume_pt_15_20->Fill(z_mass);
+           }
+           else if (mu2->pt() >= 20){
+             muon_ID_JPsi_deno_pt_20_All->Fill(z_mass);
+             if (mu2->isTightMuon(vit)) muon_ID_JPsi_nume_pt_20_All->Fill(z_mass);
+           }
+         } 
+      }
+   }
+
+   double metpt = mets->at(0).pt();
+   double metphi= mets->at(0).phi();
+   double mt = 0;
+   // loop muon collection, to set up a WJets type Control Region
+   for(std::vector<pat::Muon>::const_iterator mu1=muons->begin(); mu1!=muons->end(); ++mu1){
+      if (mu1->pt() <= 24.0 || mu1->eta() > 2.1) continue;
+      if (!(mu1->isGlobalMuon()) || !(mu1->isTightMuon(vit))) continue;
+      double reliso = (mu1->trackIso() + mu1->caloIso())/mu1->pt();
+      if (reliso > 0.2) continue;
+      mt = TMath::Sqrt(2*mu1->pt()*metpt*(1 - TMath::Cos(mu1->phi() - metphi)));
+      if (mt > 0) h_MT->Fill(mt);
+      if (mt > 40.0){
+        h_pt->Fill( mu1->pt () );
+        h_eta->Fill( mu1->eta() );
+        h_phi->Fill( mu1->phi() );
+        M.SetPtEtaPhiE(mu1->pt(), mu1->eta(), mu1->phi(), mu1->energy());
+        break;
+      }
+   }
+
+   // loop muon collection, for muon veto
+   int nMuon = 0;
+   for(std::vector<pat::Muon>::const_iterator mu1=muons->begin(); mu1!=muons->end(); ++mu1){
+      if (mu1->pt() <= 15.0 || mu1->eta() > 2.1) continue;
+      if (!(mu1->isGlobalMuon()) || !(mu1->isTightMuon(vit))) continue;
+      double reliso = (mu1->trackIso() + mu1->caloIso())/mu1->pt();
+      if (reliso > 0.2) continue;
+      nMuon++;
+   }
+
+   // loop electron collection, for electron veto
+   int nEle = 0;
+   for(std::vector<pat::Electron>::const_iterator ele1=electrons->begin(); ele1!=electrons->end(); ++ele1){
+      if (ele1->pt() <= 15.0 || ele1->eta() > 2.1) continue;
+      if (!ele1->electronID("eidLoose")) continue;
+      nEle++;
+   }
+
+   // loop jet collection, for BJets veto
+   int nBjets = 0;
+   for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); ++jet){
+      if (jet->pt() <= 24.0 || jet->eta() > 2.4) continue;
+      if (jet->bDiscriminator("combinedSecondaryVertexBJetTags") < 0.70) continue;
+      nBjets++;
+   }
+
+   //tau fake rate in WJets Control Region as a function of pt and eta, tauID working points can be played with
+   for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau){
+      if (mt < 40.0) continue;
+      if (nMuon != 1 || nEle != 0 || nBjets != 0) continue;
+      if (tau->pt() <= 20.0 || tau->eta() > 2.3) continue;
+      if (tau->tauID("decayModeFinding") < 0.5 || 
+          tau->tauID("againstElectronLoose") < 0.5 ||
+          tau->tauID("againstMuonLoose") < 0.5) continue;
+      T.SetPtEtaPhiE(tau->pt(), tau->eta(), tau->phi(), tau->energy());
+      if (T.DeltaR(M) < 0.5) continue;
+      h_pt_deno->Fill(tau->pt());
+      if (tau->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5) h_pt_nume->Fill(tau->pt());
+      h_eta_deno->Fill(tau->eta());
+      if (tau->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5) h_eta_nume->Fill(tau->eta());
+   }
+
+   //tau fake rate in WJets Control Region as a function of pt, starting from jet collection
+   for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); ++jet){
+      if (mt < 40.0) continue;
+      if (nMuon != 1 || nEle != 0) continue;
+      if (jet->pt() <= 20.0 || jet->eta() > 1.5) continue;//only central jets
+      if (jet->bDiscriminator("combinedSecondaryVertexBJetTags") > 0.70) continue;
+      J.SetPtEtaPhiE(jet->pt(), jet->eta(), jet->phi(), jet->energy());
+      if (J.DeltaR(M) < 0.5) continue;
+      jet_pt_deno->Fill(jet->pt());
+      for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau){
+         if (tau->pt() <= 20.0 || tau->eta() > 2.3) continue;
+         if (tau->tauID("decayModeFinding") < 0.5 || 
+             tau->tauID("againstElectronLoose") < 0.5 ||
+             tau->tauID("againstMuonLoose") < 0.5 ||
+             tau->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") < 0.5) continue;
+         Temp.SetPtEtaPhiE(tau->pt(), tau->eta(), tau->phi(), tau->energy());
+         if (Temp.DeltaR(J) < 0.1){
+           jet_pt_nume->Fill(jet->pt());
+           break;
+         }
+      }
+      break; // Only considering the first jet
+   }
+
+   // loop muon collection, to set up a TTJets type Control Region
+   //Choosing two OS muons not giving the Z Mass, TTJets -> WWbb+Jets -> llbb+Jets
+   bool dilepflag = false;
+   TLorentzVector J1, Temp1, Mu1, Mu2;
+   for(std::vector<pat::Muon>::const_iterator mu1=muons->begin(); mu1!=muons->end(); ++mu1){
+      if (mu1->pt() <= 24.0 || mu1->eta() > 2.1) continue;
+      if (!(mu1->isGlobalMuon()) || !(mu1->isTightMuon(vit))) continue;
+      double reliso = (mu1->trackIso() + mu1->caloIso())/mu1->pt();
+      if (reliso > 0.2) continue;
+      Mu1.SetPtEtaPhiE(mu1->pt(), mu1->eta(), mu1->phi(), mu1->energy());
+      for(std::vector<pat::Muon>::const_iterator mu2=muons->begin(); mu2!=muons->end(); ++mu2){
+         if (mu1 == mu2) continue;
+         if (mu2->pt() <= 15.0 || mu2->eta() > 2.1) continue;
+         if ((mu1->charge() + mu2->charge()) != 0) continue;  //Two OS Muon
+         if (!(mu2->isGlobalMuon())) continue;
+         if (!(mu2->isGlobalMuon()) || !(mu2->isTightMuon(vit))) continue;
+         double reliso = (mu2->trackIso() + mu2->caloIso())/mu2->pt();
+         if (reliso > 0.2) continue;
+
+         Mu2.SetPtEtaPhiE(mu2->pt(), mu2->eta(), mu2->phi(), mu2->energy());
+         double z_mass = (M1+M2).M();
+         if (abs (z_mass - 91) < 20) continue; // Not in Z Mass window
+         dilepflag = true;
+         break;
+      }
+      if (dilepflag) break;
+   }
+
+   //tau fake rate in TTJets Control Region as a function of pt, starting from jet collection
+   for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); ++jet){
+      if (nMuon != 2 || nEle != 0) continue;
+      if (!dilepflag) continue;
+      if (nBjets < 1) continue; // atleast 1 b-jets, can be made 2 for tighter selection
+      if (jet->pt() <= 20.0 || jet->eta() > 1.5) continue; // only central jets
+      if (jet->bDiscriminator("combinedSecondaryVertexBJetTags") > 0.70) continue;
+      J1.SetPtEtaPhiE(jet->pt(), jet->eta(), jet->phi(), jet->energy());
+      if (J1.DeltaR(Mu1) < 0.5) continue;
+      if (J1.DeltaR(Mu2) < 0.5) continue;
+      jet_pt_ttjets_deno->Fill(jet->pt());
+      for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau){
+         if (tau->pt() <= 20.0 || tau->eta() > 2.3) continue;
+         if (tau->tauID("decayModeFinding") < 0.5 || 
+             tau->tauID("againstElectronLoose") < 0.5 ||
+             tau->tauID("againstMuonLoose") < 0.5 ||
+             tau->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") < 0.5) continue;
+         Temp1.SetPtEtaPhiE(tau->pt(), tau->eta(), tau->phi(), tau->energy());
+         if (Temp1.DeltaR(J1) < 0.1){
+           jet_pt_ttjets_nume->Fill(jet->pt());
+           break;
+         }
+      }
+      break; // Only considering the first jet
+   }
+
+}
+
+
+// ------------ method called once each job just before starting event loop  ------------
+void 
+DemoAnalyzer::beginJob()
+{
+   //outputFile_ = new TFile( "histo.root", "RECREATE" );
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+DemoAnalyzer::endJob() 
+{
+  std::cout << ">> saving histograms" << std::endl;
+  //outputFile_->Write();
+  //outputFile_->Close();
+}
+
+// ------------ method called when starting to processes a run  ------------
+void 
+DemoAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
+{
+}
+
+// ------------ method called when ending the processing of a run  ------------
+void 
+DemoAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
+{
+}
+
+// ------------ method called when starting to processes a luminosity block  ------------
+void 
+DemoAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
+
+// ------------ method called when ending the processing of a luminosity block  ------------
+void 
+DemoAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void
+DemoAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(DemoAnalyzer);

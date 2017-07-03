@@ -1,0 +1,2 @@
+ALL_SUBSYSTEMS+=OutreachExercise2011
+subdirs_src_OutreachExercise2011 = src_OutreachExercise2011_DecaysToLeptons
